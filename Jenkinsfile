@@ -115,9 +115,9 @@ pipeline {
                             echo Container baslatiliyor...
                             docker-compose -f docker/docker-compose.yml up -d
                             echo Container baslama bekleniyor...
-                            timeout /t 5 /nobreak > NUL
+                            powershell -NoProfile -Command "Start-Sleep -Seconds 10"
                             echo Health check...
-                            powershell -NoProfile -Command "\$r = Invoke-WebRequest -Uri http://localhost:3000/health -UseBasicParsing; if(-not \$r.StatusCode -or \$r.StatusCode -ne 200){ exit 1 }"
+                            powershell -NoProfile -Command "for(\$i=0; \$i -lt 30; \$i++) { try { \$r = Invoke-WebRequest -Uri http://localhost:3000/health -UseBasicParsing -ErrorAction Stop; if(\$r.StatusCode -eq 200) { Write-Host 'Health check passed'; exit 0 } } catch { Start-Sleep -Seconds 1 } } exit 1"
                         '''
                     } catch (Exception e) {
                         error "Docker işlemi başarısız: ${e.message}"
