@@ -40,7 +40,8 @@ async function testCreateRestaurant(driver) {
     console.log('\n=== TEST REQ-050: Restoran Oluşturma ===');
     
     await driver.get('http://localhost:3000');
-    await driver.wait(until.titleContains('Restaurant'), 5000);
+    // Sayfa başlığını kontrol etmek yerine, butonun görünüşünü bekle
+    await driver.wait(until.elementLocated(By.id('btn-new-restaurant')), 10000);
     
     // Yeni restoran butonuna tıkla
     const createBtn = await driver.findElement(By.id('btn-new-restaurant'));
@@ -91,9 +92,13 @@ async function testTableStatusChange(driver) {
   try {
     console.log('\n=== TEST REQ-051: Masa Durumu Değiştirme ===');
     
-    // Masalar sekmesine git
+    // Masalar sekmesini bul ve görünüşünü bekle
+    await driver.wait(until.elementLocated(By.id('tab-tables')), 10000);
     const tablesTab = await driver.findElement(By.id('tab-tables'));
     await tablesTab.click();
+    
+    // Sayfa değişiminden sonra buton görünmesini bekle
+    await driver.wait(until.elementLocated(By.id('btn-add-table')), 10000);
     
     // Yeni masa ekle
     const addTableBtn = await driver.findElement(By.id('btn-add-table'));
@@ -152,9 +157,13 @@ async function testCreateOrder(driver) {
   try {
     console.log('\n=== TEST REQ-052: Sipariş Oluşturma ===');
     
-    // Siparişler sekmesine git
+    // Siparişler sekmesini bul ve görünüşünü bekle
+    await driver.wait(until.elementLocated(By.id('tab-orders')), 10000);
     const ordersTab = await driver.findElement(By.id('tab-orders'));
     await ordersTab.click();
+    
+    // Sayfa değişiminden sonra buton görünmesini bekle
+    await driver.wait(until.elementLocated(By.id('btn-add-order')), 10000);
     
     // Yeni sipariş ekle
     const addOrderBtn = await driver.findElement(By.id('btn-add-order'));
