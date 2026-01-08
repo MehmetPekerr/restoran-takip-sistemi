@@ -175,6 +175,11 @@ async function runTests() {
     // Chrome WebDriver oluştur
     let options = new chrome.Options();
     options.addArguments('--start-maximized');
+    // Gürültülü GCM/Push loglarını azaltmak için
+    options.addArguments('--disable-notifications');
+    options.addArguments('--disable-features=PushMessaging,OptimizationGuideModelDownloading');
+    options.addArguments('--log-level=3');
+    options.addArguments('--v=0');
     const headless = process.env.HEADLESS === '1' || process.env.CI === 'true';
     if (headless) {
       options.addArguments('--headless=new');
