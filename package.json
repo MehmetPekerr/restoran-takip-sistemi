@@ -1,0 +1,35 @@
+{
+  "name": "restoran-takip-sistemi",
+  "version": "1.0.0",
+  "description": "Restoran masa, menü ve sipariş takip sistemi - YDG Proje",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "test": "jest --detectOpenHandles",
+    "test:unit": "jest tests/unit --coverage",
+    "test:integration": "jest tests/integration --detectOpenHandles",
+    "test:e2e": "node tests/e2e/selenium-runner.js",
+    "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e",
+    "build": "echo 'Build completed successfully'",
+    "db:init": "node -e \"require('./src/models/database')\"",
+    "dev": "nodemon src/app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.6",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
+    "selenium-webdriver": "^4.13.0",
+    "nodemon": "^3.0.1",
+    "newman": "^5.3.2",
+    "jest-junit": "^16.0.0"
+  },
+  "keywords": ["restoran", "takip", "test", "jenkins", "ci-cd"],
+  "author": "Mehmet",
+  "license": "MIT"
+}

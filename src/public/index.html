@@ -1,0 +1,1125 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <title>Restoran Yönetim Sistemi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 25px;
+      text-align: center;
+    }
+    header h1 { font-size: 28px; margin-bottom: 5px; }
+    header p { opacity: 0.9; }
+    
+    .tabs {
+      display: flex;
+      background: #f8f9fa;
+      border-bottom: 2px solid #dee2e6;
+    }
+    .tabs button {
+      flex: 1;
+      padding: 15px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 500;
+      color: #6c757d;
+      position: relative;
+    }
+    .tabs button.active {
+      color: #667eea;
+      background: white;
+    }
+    .tabs button.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: #667eea;
+    }
+    
+    .section {
+      display: none;
+      padding: 30px;
+    }
+    .section.active { display: block; }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      border-bottom: 2px solid #e9ecef;
+      padding-bottom: 15px;
+    }
+    .section-header h2 { font-size: 24px; }
+    
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .btn-primary { background: #667eea; color: white; }
+    .btn-success { background: #28a745; color: white; }
+    .btn-danger { background: #dc3545; color: white; }
+    .btn-warning { background: #ffc107; color: #212529; }
+    .btn-info { background: #17a2b8; color: white; }
+    .btn-sm { padding: 6px 12px; font-size: 13px; }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #495057;
+    }
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e9ecef;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    
+    .card {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .card.show { display: block; }
+    
+    .list-item {
+      background: white;
+      border: 1px solid #e9ecef;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .list-item-info {
+      flex: 1;
+    }
+    .list-item-title {
+      font-weight: 600;
+      color: #212529;
+      margin-bottom: 5px;
+    }
+    .list-item-meta {
+      font-size: 13px;
+      color: #6c757d;
+    }
+    .list-item-actions {
+      display: flex;
+      gap: 8px;
+      margin-left: 10px;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-left: 8px;
+    }
+    .badge-available { background: #d4edda; color: #155724; }
+    .badge-occupied { background: #f8d7da; color: #721c24; }
+    .badge-reserved { background: #fff3cd; color: #856404; }
+    .badge-pending { background: #cce5ff; color: #004085; }
+    .badge-preparing { background: #fff3cd; color: #856404; }
+    .badge-ready { background: #d1ecf1; color: #0c5460; }
+    .badge-served { background: #d4edda; color: #155724; }
+    .badge-completed { background: #e2e3e5; color: #383d41; }
+    
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      display: none;
+      z-index: 1000;
+      border-left: 4px solid #28a745;
+    }
+    .toast.show { display: block; }
+    .toast.error { border-left-color: #dc3545; }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.show { display: flex; }
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 90%;
+    }
+    .modal-header {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #212529;
+    }
+    .modal-footer {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+    
+    .select-wrapper {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      align-items: flex-end;
+    }
+    .select-wrapper > div {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🍽️ Restoran Yönetim Sistemi</h1>
+      <p>Masa, Menü ve Sipariş Takip Platformu</p>
+    </header>
+
+    <nav class="tabs">
+      <button id="tab-restaurants" class="active">🏪 Restoranlar</button>
+      <button id="tab-tables">🪑 Masalar</button>
+      <button id="tab-menus">📋 Menü</button>
+      <button id="tab-orders">🧾 Siparişler</button>
+    </nav>
+
+    <div id="toast" class="toast"></div>
+
+    <!-- MODAL TEMPLATES -->
+    <div id="modal-table" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">Yeni Masa Eklendi ✅</div>
+        <p style="margin-bottom: 20px; color: #6c757d;">Masa başarıyla sisteme eklenmiştir.</p>
+        <div class="modal-footer">
+          <button class="btn btn-primary" onclick="closeModal('table')">Tamam</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-restaurant" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">Yeni Restoran Eklendi ✅</div>
+        <p style="margin-bottom: 20px; color: #6c757d;">Restoran başarıyla sisteme eklenmiştir.</p>
+        <div class="modal-footer">
+          <button class="btn btn-primary" onclick="closeModal('restaurant')">Tamam</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESTORANLAR -->
+    <section id="section-restaurants" class="section active">
+      <div class="section-header">
+        <h2>Restoranlar</h2>
+        <button class="btn btn-primary" id="btn-new-restaurant">+ Yeni Restoran</button>
+      </div>
+
+      <div class="card" id="restaurant-form">
+        <h3 style="margin-bottom: 15px;">Yeni Restoran Ekle</h3>
+        <div class="form-group">
+          <label>Restoran Adı *</label>
+          <input type="text" id="restaurant-name" placeholder="Restoran adı" />
+        </div>
+        <div class="form-group">
+          <label>Adres</label>
+          <input type="text" id="restaurant-address" placeholder="Adres" />
+        </div>
+        <div class="form-group">
+          <label>Telefon</label>
+          <input type="tel" id="restaurant-phone" placeholder="Telefon" />
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-success" id="btn-save-restaurant">Kaydet</button>
+          <button class="btn btn-danger" id="btn-cancel-restaurant">İptal</button>
+        </div>
+      </div>
+
+      <div id="restaurants-list"></div>
+    </section>
+
+    <!-- MASALAR -->
+    <section id="section-tables" class="section">
+      <div class="section-header">
+        <h2>Masalar</h2>
+        <button class="btn btn-primary" id="btn-add-table">+ Yeni Masa</button>
+      </div>
+
+      <div class="select-wrapper">
+        <div class="form-group" style="margin: 0;">
+          <label>Restoran Seçin</label>
+          <select id="tables-restaurant-select" onchange="onRestaurantChangeForTables()">
+            <option value="">-- Restoran Seçin --</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" id="btn-toggle-tables">Masaları Yükle</button>
+      </div>
+
+      <div class="card" id="table-form">
+        <h3 style="margin-bottom: 15px;">Yeni Masa Ekle</h3>
+        <div class="form-group">
+          <label>Masa Numarası *</label>
+          <input type="number" id="table-number" min="1" />
+        </div>
+        <div class="form-group">
+          <label>Kapasite *</label>
+          <input type="number" id="table-capacity" value="4" min="1" />
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-success" id="btn-save-table">Kaydet</button>
+          <button class="btn btn-danger" id="btn-cancel-table">İptal</button>
+        </div>
+      </div>
+
+      <div id="tables-list"></div>
+    </section>
+
+    <!-- MENÜ -->
+    <section id="section-menus" class="section">
+      <div class="section-header">
+        <h2>Menü Yönetimi</h2>
+        <button class="btn btn-primary" id="btn-add-menu-item">+ Yeni Ürün</button>
+      </div>
+
+      <div class="select-wrapper">
+        <div class="form-group" style="margin: 0;">
+          <label>Restoran Seçin</label>
+          <select id="menus-restaurant-select" onchange="onRestaurantChangeForMenus()">
+            <option value="">-- Restoran Seçin --</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card" id="menu-form">
+        <h3 style="margin-bottom: 15px;">Yeni Ürün Ekle</h3>
+        <div class="form-group">
+          <label>Ürün Adı *</label>
+          <input type="text" id="menu-item-name" placeholder="Ürün adı" />
+        </div>
+        <div class="form-group">
+          <label>Açıklama</label>
+          <input type="text" id="menu-item-desc" placeholder="Açıklama" />
+        </div>
+        <div class="form-group">
+          <label>Fiyat (₺) *</label>
+          <input type="number" id="menu-item-price" step="0.01" min="0.01" placeholder="0.00" />
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-success" id="btn-save-menu-item">Kaydet</button>
+          <button class="btn btn-danger" id="btn-cancel-menu-item">İptal</button>
+        </div>
+      </div>
+
+      <div id="menus-list"></div>
+    </section>
+
+    <!-- SİPARİŞLER -->
+    <section id="section-orders" class="section">
+      <div class="section-header">
+        <h2>Siparişler</h2>
+        <button class="btn btn-primary" id="btn-new-order">+ Yeni Sipariş</button>
+      </div>
+
+      <div class="card" id="order-form">
+        <h3 style="margin-bottom: 15px;">Yeni Sipariş Oluştur</h3>
+        <div class="form-group">
+          <label>Restoran Seçin *</label>
+          <select id="order-restaurant" onchange="onRestaurantChangeForOrders()">
+            <option value="">-- Restoran Seçin --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Masa *</label>
+          <select id="order-table">
+            <option value="">-- Masa Seçin --</option>
+          </select>
+        </div>
+
+        <!-- Sepet Bölümü -->
+        <div style="border: 2px solid #f0f0f0; padding: 15px; border-radius: 8px; margin: 15px 0; background: #fafafa;">
+          <h4 style="margin-top: 0; margin-bottom: 15px; color: #333;">Sepete Ürün Ekle</h4>
+          <div class="form-group" style="display: grid; grid-template-columns: 1fr 100px auto; gap: 10px; align-items: flex-end;">
+            <div>
+              <label style="display: block; margin-bottom: 5px;">Menü Öğesi *</label>
+              <select id="order-menu">
+                <option value="">-- Ürün Seçin --</option>
+              </select>
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 5px;">Adet *</label>
+              <input type="number" id="order-quantity" value="1" min="1" />
+            </div>
+            <button type="button" class="btn btn-primary" id="btn-add-to-cart">Sepete Ekle</button>
+          </div>
+        </div>
+
+        <!-- Sepet İçeriği -->
+        <div style="border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; background: #fff;">
+          <h4 style="margin-top: 0; margin-bottom: 15px; color: #333;">Sepet İçeriği</h4>
+          <div id="cart-items" style="min-height: 100px;">
+            <p style="color: #999; text-align: center; margin: 20px 0;">Sepet boş</p>
+          </div>
+          <div style="border-top: 2px solid #f0f0f0; padding-top: 15px; margin-top: 15px;">
+            <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; color: #333;">
+              <span>Toplam Fiyat:</span>
+              <span id="cart-total" style="color: #27ae60;">0.00₺</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-success" id="btn-save-order" style="flex: 1;">Siparişi Gönder</button>
+          <button class="btn btn-danger" id="btn-cancel-order" style="flex: 1;">İptal</button>
+        </div>
+      </div>
+
+      <div id="orders-list"></div>
+    </section>
+  </div>
+
+<script>
+// API FUNCTIONS
+const api = {
+  async getRestaurants() {
+    const res = await fetch('/api/restaurants');
+    return (await res.json()).data || [];
+  },
+  async createRestaurant(data) {
+    const res = await fetch('/api/restaurants', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return res.json();
+  },
+  async deleteRestaurant(id) {
+    const res = await fetch(`/api/restaurants/${id}`, { method: 'DELETE' });
+    return res.json();
+  },
+  async getTables(rid) {
+    const res = await fetch(`/api/restaurants/${rid}/tables`);
+    return (await res.json()).data || [];
+  },
+  async createTable(rid, tableNumber, capacity) {
+    const res = await fetch(`/api/restaurants/${rid}/tables`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tableNumber, capacity })
+    });
+    return res.json();
+  },
+  async updateTableStatus(id, status) {
+    const res = await fetch(`/api/tables/${id}/status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+    return res.json();
+  },
+  async getMenus(rid) {
+    const res = await fetch(`/api/restaurants/${rid}/menus`);
+    return (await res.json()).data || [];
+  },
+  async addMenuItem(rid, itemName, description, price) {
+    const res = await fetch(`/api/restaurants/${rid}/menus`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ itemName, description, price })
+    });
+    return res.json();
+  },
+  async deleteMenuItem(id) {
+    const res = await fetch(`/api/menus/${id}`, { method: 'DELETE' });
+    return res.json();
+  },
+  async getOrders() {
+    const res = await fetch('/api/orders');
+    return (await res.json()).data || [];
+  },
+  async createOrder(rid, tableId, menuId, quantity) {
+    const res = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ restaurantId: rid, tableId, menuId, quantity })
+    });
+    return res.json();
+  },
+  async updateOrderStatus(id, status) {
+    const res = await fetch(`/api/orders/${id}/status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+    return res.json();
+  }
+};
+
+function showToast(msg, isError = false) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast show' + (isError ? ' error' : '');
+  setTimeout(() => toast.className = 'toast', 3000);
+}
+
+function setTab(tab) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + tab).classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+function openModal(name) {
+  document.getElementById('modal-' + name).classList.add('show');
+}
+
+function closeModal(name) {
+  document.getElementById('modal-' + name).classList.remove('show');
+}
+
+// ===== SEPET SİSTEMİ =====
+let cart = []; // Sepete eklenen ürünler
+
+function addToCart(menuId, menuName, price) {
+  const existingItem = cart.find(item => item.menuId === menuId);
+  
+  if (existingItem) {
+    existingItem.quantity += parseInt(document.getElementById('order-quantity').value) || 1;
+  } else {
+    cart.push({
+      menuId,
+      menuName,
+      price: parseFloat(price),
+      quantity: parseInt(document.getElementById('order-quantity').value) || 1
+    });
+  }
+  
+  document.getElementById('order-quantity').value = '1';
+  renderCart();
+}
+
+function removeFromCart(menuId) {
+  cart = cart.filter(item => item.menuId !== menuId);
+  renderCart();
+}
+
+function updateCartItemQuantity(menuId, quantity) {
+  const item = cart.find(item => item.menuId === menuId);
+  if (item) {
+    item.quantity = parseInt(quantity) || 1;
+    if (item.quantity < 1) {
+      removeFromCart(menuId);
+    } else {
+      renderCart();
+    }
+  }
+}
+
+function renderCart() {
+  const cartDiv = document.getElementById('cart-items');
+  
+  if (cart.length === 0) {
+    cartDiv.innerHTML = '<p style="color: #999; text-align: center; margin: 20px 0;">Sepet boş</p>';
+    document.getElementById('cart-total').textContent = '0.00₺';
+    return;
+  }
+  
+  let total = 0;
+  let html = '<div style="display: grid; gap: 10px;">';
+  
+  cart.forEach((item, idx) => {
+    const subtotal = item.price * item.quantity;
+    total += subtotal;
+    
+    html += `
+      <div style="display: grid; grid-template-columns: 2fr 80px 100px auto; gap: 10px; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px; border-left: 3px solid #27ae60;">
+        <div>
+          <div style="font-weight: bold; color: #333;">${item.menuName}</div>
+          <div style="font-size: 12px; color: #666;">${item.price.toFixed(2)}₺</div>
+        </div>
+        <div>
+          <input type="number" value="${item.quantity}" min="1" onchange="updateCartItemQuantity(${item.menuId}, this.value)" style="width: 100%; padding: 5px; border: 1px solid #ddd; border-radius: 4px; text-align: center;" />
+        </div>
+        <div style="text-align: right; font-weight: bold; color: #27ae60;">
+          ${subtotal.toFixed(2)}₺
+        </div>
+        <button onclick="removeFromCart(${item.menuId})" class="btn btn-danger" style="padding: 5px 10px; font-size: 12px;">Sil</button>
+      </div>
+    `;
+  });
+  
+  html += '</div>';
+  cartDiv.innerHTML = html;
+  document.getElementById('cart-total').textContent = total.toFixed(2) + '₺';
+}
+
+// TAB EVENTS
+document.getElementById('tab-restaurants').onclick = () => { setTab('restaurants'); loadRestaurants(); };
+document.getElementById('tab-tables').onclick = () => setTab('tables');
+document.getElementById('tab-menus').onclick = () => setTab('menus');
+document.getElementById('tab-orders').onclick = async () => { setTab('orders'); await loadOrders(); };
+
+// ===== RESTORANLAR =====
+let restaurants = [];
+
+document.getElementById('btn-new-restaurant').onclick = () => {
+  document.getElementById('restaurant-form').classList.add('show');
+};
+
+document.getElementById('btn-cancel-restaurant').onclick = () => {
+  document.getElementById('restaurant-form').classList.remove('show');
+  document.getElementById('restaurant-name').value = '';
+  document.getElementById('restaurant-address').value = '';
+  document.getElementById('restaurant-phone').value = '';
+};
+
+document.getElementById('btn-save-restaurant').onclick = async () => {
+  const name = document.getElementById('restaurant-name').value.trim();
+  if (!name) { showToast('Restoran adı gerekli!', true); return; }
+  
+  // Duplicate kontrolü
+  const exists = restaurants.find(r => r.name.toLowerCase() === name.toLowerCase());
+  if (exists) { showToast('Bu isimde restoran zaten var!', true); return; }
+  
+  const res = await api.createRestaurant({
+    name,
+    address: document.getElementById('restaurant-address').value.trim(),
+    phone: document.getElementById('restaurant-phone').value.trim()
+  });
+  
+  if (res.success) {
+    showToast('Restoran eklendi! ✅');
+    openModal('restaurant');
+    document.getElementById('restaurant-form').classList.remove('show');
+    document.getElementById('restaurant-name').value = '';
+    document.getElementById('restaurant-address').value = '';
+    document.getElementById('restaurant-phone').value = '';
+    await loadRestaurants();
+  } else {
+    showToast(res.error || 'Hata!', true);
+  }
+};
+
+async function loadRestaurants() {
+  restaurants = await api.getRestaurants();
+  const list = document.getElementById('restaurants-list');
+  list.innerHTML = '';
+  
+  if (restaurants.length === 0) {
+    list.innerHTML = '<p style="text-align:center; padding:40px; color:#6c757d;">Restoran yok</p>';
+  } else {
+    restaurants.forEach((r, i) => {
+      const div = document.createElement('div');
+      div.className = 'list-item';
+      div.innerHTML = `
+        <div class="list-item-info">
+          <div class="list-item-title">${i + 1}. ${r.name}</div>
+          <div class="list-item-meta">${r.address || 'Adres yok'} ${r.phone ? '• ' + r.phone : ''}</div>
+          <div class="list-item-meta" style="font-size:11px; margin-top:3px;">${new Date(r.created_at).toLocaleString('tr-TR')}</div>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="delRestaurant(${r.id})">Sil</button>
+      `;
+      list.appendChild(div);
+    });
+  }
+  
+  const tabs = document.getElementById('tables-restaurant-select'),
+        menus = document.getElementById('menus-restaurant-select'),
+        orders = document.getElementById('order-restaurant');
+  tabs.innerHTML = menus.innerHTML = orders.innerHTML = '<option value="">-- Restoran Seçin --</option>';
+  restaurants.forEach(r => {
+    const opt1 = document.createElement('option');
+    opt1.value = r.id;
+    opt1.textContent = r.name;
+    tabs.appendChild(opt1);
+    
+    const opt2 = document.createElement('option');
+    opt2.value = r.id;
+    opt2.textContent = r.name;
+    menus.appendChild(opt2);
+    
+    const opt3 = document.createElement('option');
+    opt3.value = r.id;
+    opt3.textContent = r.name;
+    orders.appendChild(opt3);
+  });
+}
+
+async function delRestaurant(id) {
+  if (!confirm('Silmek istiyor musunuz?')) return;
+  const res = await api.deleteRestaurant(id);
+  if (res.success) {
+    showToast('Silindi! 🗑️');
+    await loadRestaurants();
+  } else showToast('Hata!', true);
+}
+
+// ===== MASALAR =====
+let tablesLoaded = false;
+let currentTableRestaurant = '';
+
+function onRestaurantChangeForTables() {
+  if (tablesLoaded) {
+    document.getElementById('btn-toggle-tables').textContent = 'Masaları Yükle';
+    document.getElementById('tables-list').innerHTML = '';
+    tablesLoaded = false;
+  }
+}
+
+document.getElementById('btn-toggle-tables').onclick = async () => {
+  const rid = document.getElementById('tables-restaurant-select').value;
+  if (!rid) { showToast('Restoran seçin!', true); return; }
+  
+  const btn = document.getElementById('btn-toggle-tables');
+  if (tablesLoaded) {
+    document.getElementById('tables-list').innerHTML = '';
+    btn.textContent = 'Masaları Yükle';
+    tablesLoaded = false;
+  } else {
+    await loadTables(rid);
+    btn.textContent = 'Masaları Gizle';
+    tablesLoaded = true;
+    currentTableRestaurant = rid;
+  }
+};
+
+document.getElementById('btn-add-table').onclick = () => {
+  const rid = document.getElementById('tables-restaurant-select').value;
+  if (!rid) { showToast('Restoran seçin!', true); return; }
+  document.getElementById('table-form').classList.add('show');
+};
+
+document.getElementById('btn-cancel-table').onclick = () => {
+  document.getElementById('table-form').classList.remove('show');
+  document.getElementById('table-number').value = '';
+  document.getElementById('table-capacity').value = '4';
+};
+
+document.getElementById('btn-save-table').onclick = async () => {
+  const rid = document.getElementById('tables-restaurant-select').value;
+  const num = document.getElementById('table-number').value;
+  const cap = document.getElementById('table-capacity').value;
+  
+  if (!rid || !num || !cap) { showToast('Tüm alanları doldurun!', true); return; }
+  
+  // Duplicate masa numarası kontrolü
+  const existingTables = await api.getTables(rid);
+  const exists = existingTables.find(t => t.table_number === parseInt(num));
+  if (exists) { showToast('Bu numarada masa zaten var!', true); return; }
+  
+  const res = await api.createTable(rid, parseInt(num), parseInt(cap));
+  if (res.success) {
+    showToast('Masa eklendi! 🪑');
+    openModal('table');
+    document.getElementById('table-form').classList.remove('show');
+    document.getElementById('table-number').value = '';
+    document.getElementById('table-capacity').value = '4';
+    if (tablesLoaded && currentTableRestaurant === rid) await loadTables(rid);
+  } else showToast(res.error || 'Hata!', true);
+};
+
+async function loadTables(rid) {
+  const tables = await api.getTables(rid);
+  const list = document.getElementById('tables-list');
+  list.innerHTML = '';
+  
+  if (!tables.length) {
+    list.innerHTML = '<p style="text-align:center; padding:40px; color:#6c757d;">Masa yok</p>';
+  } else {
+    tables.forEach((t, i) => {
+      const div = document.createElement('div');
+      div.className = 'list-item';
+      const statText = t.status === 'available' ? 'Müsait' : t.status === 'occupied' ? 'Dolu' : 'Rezerve';
+      div.innerHTML = `
+        <div class="list-item-info">
+          <div class="list-item-title">${i + 1}. Masa ${t.table_number} <span class="badge badge-${t.status}">${statText}</span></div>
+          <div class="list-item-meta">Kapasite: ${t.capacity} kişi</div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <select onchange="updateTableStatus(${t.id}, this.value)" style="padding:6px; border-radius:4px; border:1px solid #dee2e6;">
+            <option value="available" ${t.status === 'available' ? 'selected' : ''}>Müsait</option>
+            <option value="occupied" ${t.status === 'occupied' ? 'selected' : ''}>Dolu</option>
+            <option value="reserved" ${t.status === 'reserved' ? 'selected' : ''}>Rezerve</option>
+          </select>
+          <button class="btn btn-warning btn-sm" onclick="editTable(${t.id}, ${t.table_number}, ${t.capacity})">Düzenle</button>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+  }
+}
+
+function editTable(id, num, cap) {
+  const newNum = prompt('Yeni masa numarası:', num);
+  if (!newNum || newNum === num.toString()) return;
+  showToast('Masa düzenleme özelliği şu anda yalnızca kapasite değişikliği destekliyor. API\'de update endpoint\'i eklenmelidir.');
+}
+
+async function updateTableStatus(id, status) {
+  const res = await api.updateTableStatus(id, status);
+  if (res.success) {
+    showToast('Durum güncellendi! ✅');
+    if (tablesLoaded) await loadTables(currentTableRestaurant);
+  } else showToast('Hata!', true);
+}
+
+// ===== MENÜ =====
+let currentMenus = [];
+let menusLoaded = false;
+let currentMenuRestaurant = '';
+
+function onRestaurantChangeForMenus() {
+  if (menusLoaded) {
+    document.getElementById('menus-list').innerHTML = '';
+    menusLoaded = false;
+    updateOrderMenuSelect();
+  }
+}
+
+document.getElementById('btn-add-menu-item').onclick = () => {
+  const rid = document.getElementById('menus-restaurant-select').value;
+  if (!rid) { showToast('Restoran seçin!', true); return; }
+  document.getElementById('menu-form').classList.add('show');
+};
+
+document.getElementById('btn-cancel-menu-item').onclick = () => {
+  document.getElementById('menu-form').classList.remove('show');
+  clearMenuForm();
+  editingMenuItemId = null;
+  document.getElementById('btn-save-menu-item').textContent = 'Kaydet';
+};
+
+document.getElementById('btn-save-menu-item').onclick = async () => {
+  const rid = document.getElementById('menus-restaurant-select').value;
+  const name = document.getElementById('menu-item-name').value.trim();
+  const desc = document.getElementById('menu-item-desc').value.trim();
+  const price = parseFloat(document.getElementById('menu-item-price').value);
+  
+  if (!rid || !name || !price || price <= 0) { showToast('Gerekli alanları doldurun!', true); return; }
+  
+  // Düzenleme modunda değilse duplicate kontrolü yap
+  if (!editingMenuItemId) {
+    const exists = currentMenus.find(m => m.item_name.toLowerCase() === name.toLowerCase());
+    if (exists) { showToast('Bu isimde ürün zaten var!', true); return; }
+  }
+  
+  let res;
+  if (editingMenuItemId) {
+    // Güncelleme - şimdilik sadece yeni ekle/eski sil şeklinde
+    await api.deleteMenuItem(editingMenuItemId);
+    res = await api.addMenuItem(rid, name, desc, price);
+    if (res.success) {
+      showToast('Ürün güncellendi! ✏️');
+    }
+  } else {
+    res = await api.addMenuItem(rid, name, desc, price);
+    if (res.success) {
+      showToast('Ürün eklendi! 📋');
+    }
+  }
+  
+  if (res.success) {
+    document.getElementById('menu-form').classList.remove('show');
+    clearMenuForm();
+    editingMenuItemId = null;
+    document.getElementById('btn-save-menu-item').textContent = 'Kaydet';
+    if (rid === document.getElementById('menus-restaurant-select').value && menusLoaded) await loadMenus(rid);
+  } else showToast(res.error || 'Hata!', true);
+};
+
+function clearMenuForm() {
+  document.getElementById('menu-item-name').value = '';
+  document.getElementById('menu-item-desc').value = '';
+  document.getElementById('menu-item-price').value = '';
+}
+
+async function loadMenus(rid) {
+  currentMenus = await api.getMenus(rid);
+  const list = document.getElementById('menus-list');
+  list.innerHTML = '';
+  
+  if (!currentMenus.length) {
+    list.innerHTML = '<p style="text-align:center; padding:40px; color:#6c757d;">Ürün yok</p>';
+  } else {
+    currentMenus.forEach((m, i) => {
+      const div = document.createElement('div');
+      div.className = 'list-item';
+      div.innerHTML = `
+        <div class="list-item-info">
+          <div class="list-item-title">${i + 1}. ${m.item_name} - ${m.price}₺</div>
+          <div class="list-item-meta">${m.description || 'Açıklama yok'}</div>
+        </div>
+        <div class="list-item-actions">
+          <button class="btn btn-info btn-sm" onclick="editMenuItem(${m.id}, '${m.item_name.replace(/'/g, "\\'")}', '${(m.description || '').replace(/'/g, "\\'")}', ${m.price})">Düzenle</button>
+          <button class="btn btn-danger btn-sm" onclick="delMenuItem(${m.id})">Sil</button>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+  }
+  updateOrderMenuSelect();
+}
+
+async function delMenuItem(id) {
+  if (!confirm('Ürünü silmek istiyor musunuz?')) return;
+  const res = await api.deleteMenuItem(id);
+  if (res.success) {
+    showToast('Ürün silindi! 🗑️');
+    const rid = document.getElementById('menus-restaurant-select').value;
+    if (rid && menusLoaded) await loadMenus(rid);
+  } else showToast('Hata!', true);
+}
+
+let editingMenuItemId = null;
+
+function editMenuItem(id, name, desc, price) {
+  editingMenuItemId = id;
+  document.getElementById('menu-item-name').value = name;
+  document.getElementById('menu-item-desc').value = desc;
+  document.getElementById('menu-item-price').value = price;
+  document.getElementById('menu-form').classList.add('show');
+  document.getElementById('btn-save-menu-item').textContent = 'Güncelle';
+}
+
+function updateOrderMenuSelect() {
+  const sel = document.getElementById('order-menu');
+  sel.innerHTML = '<option value="">-- Ürün Seçin --</option>';
+  currentMenus.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.id;
+    opt.textContent = `${m.item_name} - ${m.price}₺`;
+    sel.appendChild(opt);
+  });
+}
+
+document.getElementById('menus-restaurant-select').onclick = async function() {
+  const rid = this.value;
+  if (!rid) return;
+  
+  if (menusLoaded) {
+    document.getElementById('menus-list').innerHTML = '';
+    menusLoaded = false;
+  } else {
+    await loadMenus(rid);
+    menusLoaded = true;
+    currentMenuRestaurant = rid;
+  }
+};
+
+// ===== SİPARİŞLER =====
+async function onRestaurantChangeForOrders() {
+  const rid = document.getElementById('order-restaurant').value;
+  if (!rid) {
+    document.getElementById('order-table').innerHTML = '<option value="">-- Masa Seçin --</option>';
+    document.getElementById('order-menu').innerHTML = '<option value="">-- Ürün Seçin --</option>';
+    return;
+  }
+  
+  const tables = await api.getTables(rid);
+  const sel = document.getElementById('order-table');
+  sel.innerHTML = '<option value="">-- Masa Seçin --</option>';
+  tables.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.id;
+    opt.textContent = `Masa ${t.table_number}`;
+    sel.appendChild(opt);
+  });
+  
+  const menus = await api.getMenus(rid);
+  const msel = document.getElementById('order-menu');
+  msel.innerHTML = '<option value="">-- Ürün Seçin --</option>';
+  menus.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.id;
+    opt.textContent = `${m.item_name} - ${m.price}₺`;
+    msel.appendChild(opt);
+  });
+}
+
+document.getElementById('btn-new-order').onclick = () => {
+  document.getElementById('order-form').classList.add('show');
+};
+
+document.getElementById('btn-cancel-order').onclick = () => {
+  document.getElementById('order-form').classList.remove('show');
+  document.getElementById('order-restaurant').value = '';
+  document.getElementById('order-table').value = '';
+  document.getElementById('order-menu').value = '';
+  document.getElementById('order-quantity').value = '1';
+  cart = [];
+  renderCart();
+};
+
+// Sepete Ekle butonu
+document.getElementById('btn-add-to-cart').onclick = () => {
+  const menuSelect = document.getElementById('order-menu');
+  const menuId = menuSelect.value;
+  const qty = document.getElementById('order-quantity').value;
+  
+  if (!menuId) { 
+    showToast('Ürün seçin!', true); 
+    return; 
+  }
+  
+  const menuOption = menuSelect.selectedOptions[0];
+  const parts = menuOption.textContent.split(' - ');
+  const menuName = parts[0].trim();
+  const price = parseFloat(parts[1]?.replace('₺', '').trim());
+  
+  if (!menuName || !price) {
+    showToast('Hata: Ürün bilgileri alınamadı!', true);
+    return;
+  }
+  
+  addToCart(parseInt(menuId), menuName, price);
+  showToast(`"${menuName}" sepete eklendi!`);
+};
+
+document.getElementById('btn-save-order').onclick = async () => {
+  const rid = document.getElementById('order-restaurant').value;
+  const tid = document.getElementById('order-table').value;
+  
+  if (!rid || !tid || cart.length === 0) { 
+    showToast('Restoran, masa seçin ve sepete ürün ekleyin!', true); 
+    return; 
+  }
+  
+  // Her sepet öğesi için ayrı sipariş oluştur
+  try {
+    let successCount = 0;
+    for (let item of cart) {
+      const res = await api.createOrder(rid, tid, item.menuId, item.quantity);
+      if (res.success) {
+        successCount++;
+      }
+    }
+    
+    if (successCount === cart.length) {
+      showToast(`${successCount} ürün siparişi gönderildi! 🧾`);
+      document.getElementById('order-form').classList.remove('show');
+      document.getElementById('order-restaurant').value = '';
+      document.getElementById('order-table').value = '';
+      document.getElementById('order-menu').value = '';
+      document.getElementById('order-quantity').value = '1';
+      cart = [];
+      renderCart();
+      
+      // Siparişler sayfasına geç ve yükle
+      setTab('orders');
+      await loadOrders();
+    } else {
+      showToast(`${successCount}/${cart.length} ürün gönderildi`, true);
+    }
+  } catch (e) {
+    showToast('Sipariş gönderme hatası: ' + e.message, true);
+  }
+};
+
+async function loadOrders() {
+  try {
+    const orders = await api.getOrders();
+    console.log('Orders API Response:', orders); // Debug
+    const list = document.getElementById('orders-list');
+    list.innerHTML = '';
+    
+    if (!orders || orders.length === 0) {
+      list.innerHTML = '<p style="text-align:center; padding:40px; color:#6c757d;">Sipariş yok</p>';
+    } else {
+      orders.forEach((o, i) => {
+        const div = document.createElement('div');
+        div.className = 'list-item';
+        const statText = 
+          o.status === 'pending' ? 'Beklemede' :
+          o.status === 'preparing' ? 'Hazırlanıyor' :
+          o.status === 'ready' ? 'Hazır' :
+          o.status === 'served' ? 'Gönderildi' : 'Tamamlandı';
+        
+        const date = new Date(o.created_at).toLocaleString('tr-TR');
+        div.innerHTML = `
+          <div class="list-item-info">
+            <div class="list-item-title">${i + 1}. Sipariş #${o.id} <span class="badge badge-${o.status}">${statText}</span></div>
+            <div class="list-item-meta">Masa: ${o.table_id} • Toplam: ${o.total_amount}₺ • ${date}</div>
+          </div>
+          <select onchange="updateOrderStatus(${o.id}, this.value)" style="padding:6px; border-radius:4px; border:1px solid #dee2e6;">
+            <option value="pending" ${o.status === 'pending' ? 'selected' : ''}>Beklemede</option>
+            <option value="preparing" ${o.status === 'preparing' ? 'selected' : ''}>Hazırlanıyor</option>
+            <option value="ready" ${o.status === 'ready' ? 'selected' : ''}>Hazır</option>
+            <option value="served" ${o.status === 'served' ? 'selected' : ''}>Gönderildi</option>
+            <option value="completed" ${o.status === 'completed' ? 'selected' : ''}>Tamamlandı</option>
+          </select>
+        `;
+        list.appendChild(div);
+      });
+    }
+  } catch (e) {
+    console.error('loadOrders Error:', e);
+    showToast('Siparişler yüklenemedi!', true);
+  }
+}
+
+async function updateOrderStatus(id, status) {
+  const res = await api.updateOrderStatus(id, status);
+  if (res.success) {
+    showToast('Sipariş güncellendi! ✅');
+    await loadOrders();
+  } else showToast('Hata!', true);
+}
+
+// INITIAL LOAD
+loadRestaurants();
+</script>
+</body>
+</html>
