@@ -192,17 +192,21 @@ async function runTests() {
     console.log('║     Restoran Masa, Menü, Sipariş Takip Sistemi        ║');
     console.log('╚════════════════════════════════════════════════════════╝\n');
     
-    const scenario = process.env.SCENARIO;
-    if (!scenario || scenario === 'REQ-050') results.push(await testCreateRestaurant(driver));
-    if (!scenario || scenario === 'REQ-051') results.push(await testTableStatusChange(driver));
-    if (!scenario || scenario === 'REQ-052') results.push(await testCreateOrder(driver));
-      if (!scenario || scenario === 'REQ-053') results.push(await testUpdateMenuItem(driver));
-      if (!scenario || scenario === 'REQ-054') results.push(await testDeleteRestaurant(driver));
-      if (!scenario || scenario === 'REQ-055') results.push(await testReserveTable(driver));
-      if (!scenario || scenario === 'REQ-056') results.push(await testCancelOrder(driver));
-      if (!scenario || scenario === 'REQ-057') results.push(await testViewOrderHistory(driver));
-      if (!scenario || scenario === 'REQ-058') results.push(await testSearchRestaurants(driver));
-      if (!scenario || scenario === 'REQ-059') results.push(await testGenerateInvoice(driver));
+    const scenarioRaw = process.env.SCENARIO || '';
+    const scenario = scenarioRaw.trim();
+    const hasScenario = !!scenario;
+    if (hasScenario) console.log(`Seçili senaryo: ${scenario}`);
+    
+    if (!hasScenario || scenario === 'REQ-050') results.push(await testCreateRestaurant(driver));
+    if (!hasScenario || scenario === 'REQ-051') results.push(await testTableStatusChange(driver));
+    if (!hasScenario || scenario === 'REQ-052') results.push(await testCreateOrder(driver));
+      if (!hasScenario || scenario === 'REQ-053') results.push(await testUpdateMenuItem(driver));
+      if (!hasScenario || scenario === 'REQ-054') results.push(await testDeleteRestaurant(driver));
+      if (!hasScenario || scenario === 'REQ-055') results.push(await testReserveTable(driver));
+      if (!hasScenario || scenario === 'REQ-056') results.push(await testCancelOrder(driver));
+      if (!hasScenario || scenario === 'REQ-057') results.push(await testViewOrderHistory(driver));
+      if (!hasScenario || scenario === 'REQ-058') results.push(await testSearchRestaurants(driver));
+      if (!hasScenario || scenario === 'REQ-059') results.push(await testGenerateInvoice(driver));
     
     // Sonuçları özetle
     console.log('\n╔════════════════════════════════════════════════════════╗');
@@ -211,7 +215,7 @@ async function runTests() {
     
     const passed = results.filter(r => r).length;
     const failed = results.filter(r => !r).length;
-      const total = scenario ? 1 : 10;
+      const total = hasScenario ? 1 : 10;
     
       console.log(`║  Başarılı: ${passed} / ${total}                                         ║`);
       console.log(`║  Başarısız: ${failed} / ${total}                                         ║`);
