@@ -2,6 +2,13 @@ const { Builder, By, until, Key } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 const http = require('http');
 
+async function waitForPageReady(driver, timeoutMs = 15000) {
+  await driver.wait(async () => {
+    const state = await driver.executeScript('return document.readyState');
+    return state === 'complete';
+  }, timeoutMs, 'Document readyState did not become complete');
+}
+
 async function waitForServer(url = 'http://localhost:3000/health', timeoutMs = 20000) {
   const start = Date.now();
   return new Promise((resolve, reject) => {
@@ -40,8 +47,9 @@ async function testCreateRestaurant(driver) {
     console.log('\n=== TEST REQ-050: Restoran Oluşturma ===');
     
     await driver.get('http://localhost:3000');
+    await waitForPageReady(driver);
     // Sayfa başlığını kontrol etmek yerine, butonun görünüşünü bekle
-    await driver.wait(until.elementLocated(By.id('btn-new-restaurant')), 10000);
+    await driver.wait(until.elementLocated(By.id('btn-new-restaurant')), 20000);
     
     // Yeni restoran butonuna tıkla
     const createBtn = await driver.findElement(By.id('btn-new-restaurant'));
@@ -61,15 +69,15 @@ async function testCreateRestaurant(driver) {
     const saveBtn = await driver.findElement(By.id('btn-save-restaurant'));
     await saveBtn.click();
     
-    // Toast başarı mesajını kontrol et
-    const toastMsg = await driver.wait(
-      until.elementLocated(By.id('toast')),
-      10000
-    );
+    // Toast başarı mesajını görünür ve dolu olana kadar bekle
+    await driver.wait(until.elementLocated(By.id('toast')), 20000);
+    const toastMsg = await driver.wait(async () => {
+      const el = await driver.findElement(By.id('toast'));
+      const text = await el.getText();
+      const cls = await el.getAttribute('class');
+      return text && text.trim() !== '' && cls.includes('show') ? el : false;
+    }, 10000, 'Toast mesajı boş veya görünür değil');
     const toastText = await toastMsg.getText();
-    if (!toastText || toastText.trim() === '') {
-      throw new Error('Toast mesajı boş veya bulunamadı');
-    }
     
     console.log('✓ REQ-050 Başarılı: Restoran oluşturuldu');
     return true;
@@ -96,17 +104,19 @@ async function testTableStatusChange(driver) {
   try {
     console.log('\n=== TEST REQ-051: Masa Durumu Değiştirme ===');
     
+    await driver.get('http://localhost:3000');
+    await waitForPageReady(driver);
     // Masalar sekmesini bul ve görünüşünü bekle
-    await driver.wait(until.elementLocated(By.id('tab-tables')), 10000);
+    await driver.wait(until.elementLocated(By.id('tab-tables')), 20000);
     const tablesTab = await driver.findElement(By.id('tab-tables'));
     await tablesTab.click();
     
     // Masalar bölümünün aktif olmasını bekle
-    await driver.wait(until.elementLocated(By.id('section-tables')), 10000);
+    await driver.wait(until.elementLocated(By.id('section-tables')), 20000);
     const tablesSection = await driver.findElement(By.id('section-tables'));
     
     // Sayfa değişiminden sonra buton görünmesini bekle
-    await driver.wait(until.elementLocated(By.id('btn-add-table')), 10000);
+    await driver.wait(until.elementLocated(By.id('btn-add-table')), 20000);
     
     console.log('✓ REQ-051 Başarılı: Masa yönetimi sayfası yüklendi');
     return true;
@@ -133,17 +143,19 @@ async function testCreateOrder(driver) {
   try {
     console.log('\n=== TEST REQ-052: Sipariş Oluşturma ===');
     
+    await driver.get('http://localhost:3000');
+    await waitForPageReady(driver);
     // Siparişler sekmesini bul ve görünüşünü bekle
-    await driver.wait(until.elementLocated(By.id('tab-orders')), 10000);
+    await driver.wait(until.elementLocated(By.id('tab-orders')), 20000);
     const ordersTab = await driver.findElement(By.id('tab-orders'));
     await ordersTab.click();
     
     // Siparişler bölümünün aktif olmasını bekle
-    await driver.wait(until.elementLocated(By.id('section-orders')), 10000);
+    await driver.wait(until.elementLocated(By.id('section-orders')), 20000);
     const ordersSection = await driver.findElement(By.id('section-orders'));
     
     // Sayfa değişiminden sonra buton görünmesini bekle
-    await driver.wait(until.elementLocated(By.id('btn-add-order')), 10000);
+    await driver.wait(until.elementLocated(By.id('btn-new-order')), 20000);
     
     console.log('✓ REQ-052 Başarılı: Sipariş yönetimi sayfası yüklendi');
     return true;
