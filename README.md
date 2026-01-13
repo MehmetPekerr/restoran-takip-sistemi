@@ -8,6 +8,7 @@
 [![Docker](https://img.shields.io/badge/docker-ready-blue)](.)
 [![Jenkins](https://img.shields.io/badge/jenkins-configured-blue)](.)
 [![Status](https://img.shields.io/badge/status-completed-success)](.)
+[![CI/CD](https://img.shields.io/badge/CI%2FCD-automated-success)](.)
 
 ---
 
