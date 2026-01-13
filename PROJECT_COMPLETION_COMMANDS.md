@@ -18,29 +18,7 @@
 
 **Aşağıdaki komutlar**: Jenkins'in yaptığını yerel olarak doğrulama amaçlı (opsiyonel demo için).
 
-### Otomatik Tetikleme (Webhook + Poll SCM)
-
-- **GitHub Webhook**: Repo → Settings → Webhooks → Add webhook
-   - Payload URL: `http://<jenkins-host>/github-webhook/`
-   - Content type: `application/json`
-   - Secret: (opsiyonel, Jenkins tarafında aynı secret tanımlanmalı)
-- **Jenkins Job Ayarı**: Job → Configure
-   - General → GitHub project: GitHub repo URL'si
-   - Build Triggers → GitHub hook trigger for GITScm polling (işaretli)
-   - (Opsiyonel yedek) Build Triggers → Poll SCM: `H/5 * * * *`
-- **Jenkinsfile**: Otomatik tetik için `triggers { githubPush(); pollSCM('H/5 * * * *') }` eklendi.
-- **Doğrulama**: Küçük bir commit/push yap → Jenkins otomatik build başlar; webhook yoksa Poll SCM en geç 5 dakika içinde tetikler.
-
 ### Yerel Komut Sırası
-
-0. **Değişiklik Yap ve CI Tetikle (Commit + Push)**
-```bash
-git status
-git add .
-git commit -m "chore: sunum için küçük değişiklik"
-git push origin main
-```
-> Push sonrası Jenkins webhook/Poll SCM ile otomatik build başlar.
 
 1. **Kod Çekme (Stage 1 – Checkout, 5 puan)**
 ```
@@ -87,7 +65,6 @@ docker-compose -f docker/docker-compose.yml down
 
 > **Notlar:**
 > - **Jenkins otomatik çalışır**: `git push origin main` yapınca pipeline tüm aşamaları koşar.
-> - Webhook kurulu değilse Poll SCM yedeği devreye girer (5 dk aralık).
 > - **Sunumda**: Jenkins UI'den son build (commit: 3c09386); Console Output, Stage 1–6 PASS durumu ve E2E çıktıları gösterilecek.
 > - **Yukarıdaki komutlar**: İsteğe bağlı canlı demo için yerel çalıştırma (opsiyonel; Jenkins zaten kanıtlıyor).
 > - HEADLESS=1 headless Chrome ile koşar.

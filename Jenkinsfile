@@ -17,14 +17,6 @@ pipeline {
         HEADLESS = '1'
     }
 
-    // Otomatik tetikleme: GitHub webhook ile ve yedek olarak Poll SCM
-    triggers {
-        // GitHub push webhook tetikleyicisi (GitHub plugin ve webhook gerektirir)
-        githubPush()
-        // Yedek: Her 5 dakikada bir repo değişikliklerini yokla
-        pollSCM('H/5 * * * *')
-    }
-
     stages {
         stage('1. GitHub Checkout') {
             steps {
