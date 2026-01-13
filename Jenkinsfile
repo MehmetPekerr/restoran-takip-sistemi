@@ -9,14 +9,14 @@ pipeline {
     }
 
     parameters {
-        string(name: 'GITHUB_REPO', defaultValue: 'https://github.com/mehmetpekerr/restoran-takip-sistemi.git', description: 'Repository URL (varsayılan environment üstüne yazar)')
+        string(name: 'GITHUB_REPO', defaultValue: 'https://github.com/MehmetPekerr/restoran-takip-sistemi.git', description: 'Repository URL (varsayılan environment üstüne yazar)')
         booleanParam(name: 'RUN_CORE_E2E', defaultValue: true, description: 'Çekirdek E2E senaryolarını çalıştır (REQ-050..052)')
         string(name: 'EXTRA_SCENARIOS', defaultValue: '', description: 'Virgülle ayrılmış ek E2E senaryoları (örn: REQ-053,REQ-054)')
     }
 
     environment {
         APP_NAME = 'Restoran Takip Sistemi'
-        GITHUB_REPO = 'https://github.com/mehmetpekerr/restoran-takip-sistemi.git'
+        GITHUB_REPO = 'https://github.com/MehmetPekerr/restoran-takip-sistemi.git'
         DOCKER_REGISTRY = 'docker.io'
         DOCKER_IMAGE_NAME = 'restoran-takip-sistemi'
         HEADLESS = '1'
