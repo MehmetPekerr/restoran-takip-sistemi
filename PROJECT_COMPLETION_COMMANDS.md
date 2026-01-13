@@ -40,9 +40,12 @@ Not: `http://localhost:8080/github-webhook/` yerelde erişilebilir olsa da GitHu
 
 ### Yerel Komut Sırası
 
-1. **Kod Çekme (Stage 1 – Checkout, 5 puan)**
+1. **Kod Çekme ve Push (Stage 1 – Checkout, 5 puan)**
 ```
 git pull origin main
+git add .
+git commit -m "your commit message"
+git push origin main
 ```
 
 2. **Build (Stage 2 – Build, 5 puan)**
@@ -62,10 +65,10 @@ npm run test:integration -- --passWithNoTests
 ```
 
 5. **Docker Build & Run + Health Check (Stage 5 – Docker, 5 puan)**
-```
+```powershell
 docker-compose -f docker/docker-compose.yml build
 docker-compose -f docker/docker-compose.yml up -d
-powershell -NoProfile -Command "for($i=0; $i -lt 30; $i++){ try { $r = Invoke-WebRequest -Uri http://localhost:3000/health -UseBasicParsing -ErrorAction Stop; if($r.StatusCode -eq 200){ Write-Host 'Health check passed'; exit 0 } } catch { Start-Sleep -Seconds 1 } } exit 1"
+powershell -NoProfile -Command "for(`$i=0; `$i -lt 30; `$i++){ try { `$r = Invoke-WebRequest -Uri http://localhost:3000/health -UseBasicParsing -ErrorAction Stop; if(`$r.StatusCode -eq 200){ Write-Host 'Health check passed'; exit 0 } } catch { Start-Sleep -Seconds 1 } } exit 1"
 ```
 
 6. **E2E Test Senaryoları (Stage 6 – Selenium, 55 puan)**
@@ -85,7 +88,7 @@ docker-compose -f docker/docker-compose.yml down
 
 > **Notlar:**
 > - **Jenkins otomatik çalışır**: `git push origin main` yapınca pipeline tüm aşamaları koşar.
-> - **Sunumda**: Jenkins UI'den son build (commit: 3c09386); Console Output, Stage 1–6 PASS durumu ve E2E çıktıları gösterilecek.
+> - **Sunumda**: Jenkins UI'den son build (commit: e50abb1); Console Output, Stage 1–6 PASS durumu ve E2E çıktıları gösterilecek.
 > - **Yukarıdaki komutlar**: İsteğe bağlı canlı demo için yerel çalıştırma (opsiyonel; Jenkins zaten kanıtlıyor).
 > - HEADLESS=1 headless Chrome ile koşar.
 > - SCENARIO boş bırakılırsa tüm senaryolar (REQ-050..059) ardışık çalışır.
