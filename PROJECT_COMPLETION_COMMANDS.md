@@ -1,3 +1,23 @@
+## Troubleshooting: Jenkins Otomatik Build Çalışmıyor
+
+- **Build Trigger**: Job ayarlarında `Build Triggers` altında uygun tetikleyiciyi açın.
+   - Pipeline/Freestyle: `GitHub hook trigger for GITScM polling`.
+   - Multibranch: `Scan by webhook`/SCM events ve GitHub bağlantısı.
+- **GitHub Webhook**: Repo → Settings → Webhooks → Add webhook.
+   - `Payload URL`: `http(s)://PUBLIC_HOST:8080/github-webhook/`
+   - `Content type`: `application/json`
+   - Events: `Just the push event` (yeterli) veya tüm olaylar.
+- **Jenkins’i Dışarı Açma**: Jenkins yerel ağdaysa GitHub erişemez.
+   - Geçici çözüm: `ngrok http 8080` çalıştırın, çıkan `https://*.ngrok.io/github-webhook/` URL’sini webhook’a yazın.
+   - Alternatif: Modem/Firewall port yönlendirme ile 8080’i dışarı açın (güvenlik dikkatiyle).
+- **Webhook Doğrulama**: Webhooks → `Recent Deliveries` → `Redeliver` yapın, `200` beklenir.
+- **Branch/SCM Ayarı**: Job `main` takibini yapıyor mu, `Jenkinsfile` repo kökünde mi, doğru kimlik bilgisi/checkout ayarı var mı kontrol edin.
+- **Fallback: Poll SCM**: Webhook yerine periyodik kontrol için açın.
+   - `Schedule`: `H/2 * * * *` (yaklaşık her 2 dakikada bir tarar).
+- **Hızlı Test**: Küçük bir değişiklik commit/push → Jenkins job’da yeni build otomatik başlamalı.
+- **Log İncelemesi**: Jenkins → Manage Jenkins → System Log → GitHub plugin/webhook loglarını kontrol edin.
+
+Not: `http://localhost:8080/github-webhook/` yerelde erişilebilir olsa da GitHub dışarıdan ulaşamaz; bu yüzden webhook için PUBLIC URL şarttır veya `Poll SCM` kullanın.
 ## CI/CD Adım Komutları (Yerel Çalıştırma Sırası)
 
 ### Jenkins'in Rolü

@@ -3,6 +3,11 @@
 pipeline {
     agent any
 
+    triggers {
+        // GitHub webhook yoksa periyodik olarak SCM'i poll et
+        pollSCM('H/2 * * * *')
+    }
+
     parameters {
         string(name: 'GITHUB_REPO', defaultValue: 'https://github.com/mehmetpekerr/restoran-takip-sistemi.git', description: 'Repository URL (varsayılan environment üstüne yazar)')
         booleanParam(name: 'RUN_CORE_E2E', defaultValue: true, description: 'Çekirdek E2E senaryolarını çalıştır (REQ-050..052)')
